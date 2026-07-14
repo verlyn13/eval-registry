@@ -71,6 +71,63 @@ class AuthorizationTests(unittest.TestCase):
         state["record_publication_approved"] = True
         self.assertNotEqual(validator.validate_authorization_state(state), [])
 
+    def test_historical_v1_shape_is_known_but_not_current(self) -> None:
+        historical_v1 = {
+            "schema_version": "eval-registry.authorization-state.v1",
+            "stage": "d2_scaffold",
+            "repository_creation_approved": True,
+            "signer_workflow_approved": False,
+            "external_authorities_approved": False,
+            "record_publication_approved": False,
+            "effective_date": "2026-07-13",
+        }
+        self.assertEqual(
+            validator.validate_authorization_state_contract(historical_v1), []
+        )
+        self.assertNotEqual(validator.validate_authorization_state(historical_v1), [])
+
+    def test_v1_cannot_carry_the_v2_review_field(self) -> None:
+        state = validator.load_json(ROOT / "policy/authorization-state.json")
+        state["schema_version"] = "eval-registry.authorization-state.v1"
+        self.assertNotEqual(validator.validate_authorization_state_contract(state), [])
+
+    def test_v2_requires_the_review_field(self) -> None:
+        state = validator.load_json(ROOT / "policy/authorization-state.json")
+        del state["pull_request_review_mode"]
+        self.assertNotEqual(validator.validate_authorization_state_contract(state), [])
+
+    def test_nonstring_authorization_version_is_refused(self) -> None:
+        self.assertNotEqual(
+            validator.validate_authorization_state_contract(
+                {"schema_version": ["eval-registry.authorization-state.v2"]}
+            ),
+            [],
+        )
+
+    def test_authorization_state_schemas_are_distinct_and_closed(self) -> None:
+        v1 = validator.load_json(ROOT / "schemas/authorization-state.v1.schema.json")
+        v2 = validator.load_json(ROOT / "schemas/authorization-state.v2.schema.json")
+        self.assertFalse(v1["additionalProperties"])
+        self.assertFalse(v2["additionalProperties"])
+        self.assertEqual(
+            set(v1["required"]),
+            set(
+                validator.AUTHORIZATION_STATE_KEYS[
+                    "eval-registry.authorization-state.v1"
+                ]
+            ),
+        )
+        self.assertEqual(
+            set(v2["required"]),
+            set(
+                validator.AUTHORIZATION_STATE_KEYS[
+                    "eval-registry.authorization-state.v2"
+                ]
+            ),
+        )
+        self.assertNotIn("pull_request_review_mode", v1["required"])
+        self.assertIn("pull_request_review_mode", v2["required"])
+
     def test_all_record_namespaces_are_frozen(self) -> None:
         self.assertTrue(
             validator.is_record_path("records/registrations/x/statement.json")

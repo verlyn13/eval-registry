@@ -19,6 +19,9 @@ REQUIRED_FILES = {
     "docs/verification-policy.md",
     "docs/append-only-review.md",
     "docs/agent-identity-approval-roadmap.md",
+    "docs/authorization-state-versioning.md",
+    "schemas/authorization-state.v1.schema.json",
+    "schemas/authorization-state.v2.schema.json",
     "schemas/registration-receipt.v1.schema.json",
     "schemas/attempt-disposition.v1.schema.json",
     "schemas/verification-result.v1.schema.json",
@@ -79,9 +82,53 @@ def load_json(path: Path) -> Any:
     return parse_json_text(path.read_text(encoding="utf-8"))
 
 
+AUTHORIZATION_STATE_KEYS = {
+    "eval-registry.authorization-state.v1": frozenset(
+        {
+            "schema_version",
+            "stage",
+            "repository_creation_approved",
+            "signer_workflow_approved",
+            "external_authorities_approved",
+            "record_publication_approved",
+            "effective_date",
+        }
+    ),
+    "eval-registry.authorization-state.v2": frozenset(
+        {
+            "schema_version",
+            "stage",
+            "repository_creation_approved",
+            "pull_request_review_mode",
+            "signer_workflow_approved",
+            "external_authorities_approved",
+            "record_publication_approved",
+            "effective_date",
+        }
+    ),
+}
+
+
+def validate_authorization_state_contract(value: Any) -> list[str]:
+    if not isinstance(value, dict):
+        return ["authorization state is not an object"]
+    version = value.get("schema_version")
+    if not isinstance(version, str):
+        return ["authorization-state schema_version is not a string"]
+    expected_keys = AUTHORIZATION_STATE_KEYS.get(version)
+    if expected_keys is None:
+        return [f"unknown authorization-state contract: {version!r}"]
+    if frozenset(value) != expected_keys:
+        return [f"authorization state does not match closed contract {version}"]
+    return []
+
+
 def validate_authorization_state(value: Any) -> list[str]:
+    contract_errors = validate_authorization_state_contract(value)
+    if contract_errors:
+        return contract_errors
     expected = {
-        "schema_version": "eval-registry.authorization-state.v1",
+        "schema_version": "eval-registry.authorization-state.v2",
         "stage": "d2_scaffold",
         "repository_creation_approved": True,
         "pull_request_review_mode": "solo_maintainer_attestation_v1",

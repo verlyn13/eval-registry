@@ -1,5 +1,5 @@
 {
-  "schema_version": "eval-registry.authorization-state.v1",
+  "schema_version": "eval-registry.authorization-state.v2",
   "stage": "d2_scaffold",
   "repository_creation_approved": true,
   "pull_request_review_mode": "solo_maintainer_attestation_v1",

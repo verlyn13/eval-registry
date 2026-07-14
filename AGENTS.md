@@ -26,8 +26,9 @@ are closed. A proposal, schema, test, or convenient credential never opens eithe
    responses, decisions, credentials, sensitive identities, or private workspace/repository names.
 6. **Append only after activation.** Existing files under any future `records/` path may never be
    modified, renamed, or deleted. Corrective information is a new signed record.
-7. **Version contracts.** A published schema or trust policy is immutable. Incompatible change
-   means a new version and an explicit migration/compatibility statement.
+7. **Version contracts.** A published schema, authorization-state contract, or trust policy is
+   immutable. Incompatible change means a new version and an explicit migration/compatibility
+   statement.
 8. **Reviewed, signed history.** The default branch requires pull requests, signed commits, linear
    history, and the repository validation check. While there is one eligible maintainer,
    `solo_maintainer_attestation_v1` requires a self-review bound to the exact pull-request head.
