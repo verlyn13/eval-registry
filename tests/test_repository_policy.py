@@ -19,6 +19,36 @@ def load_module(name: str, relative_path: str) -> ModuleType:
 
 validator = load_module("validate_repository", "scripts/validate_repository.py")
 append_only = load_module("check_append_only", "scripts/check_append_only.py")
+attestation = load_module(
+    "validate_pr_attestation", "scripts/validate_pr_attestation.py"
+)
+
+HEAD_SHA = "0123456789abcdef0123456789abcdef01234567"
+AUTHOR = "verlyn13"
+
+
+def valid_attestation_body() -> str:
+    declarations = "\n".join(
+        f"- [x] {declaration}" for declaration in attestation.REQUIRED_DECLARATIONS
+    )
+    return (
+        f"{attestation.START}\n"
+        f"review_mode: {attestation.REVIEW_MODE}\n"
+        f"reviewed_by: {AUTHOR}\n"
+        f"reviewed_head_sha: {HEAD_SHA}\n\n"
+        f"{declarations}\n"
+        f"{attestation.END}"
+    )
+
+
+def pull_request_event(body: str | None = None) -> dict[str, object]:
+    return {
+        "pull_request": {
+            "body": valid_attestation_body() if body is None else body,
+            "head": {"sha": HEAD_SHA},
+            "user": {"login": AUTHOR},
+        }
+    }
 
 
 class ExactJsonTests(unittest.TestCase):
@@ -52,6 +82,43 @@ class AuthorizationTests(unittest.TestCase):
         self.assertFalse(
             validator.is_record_path("schemas/registration-receipt.v1.schema.json")
         )
+
+
+class SoloMaintainerAttestationTests(unittest.TestCase):
+    def test_exact_head_attestation_is_accepted(self) -> None:
+        attestation.validate_event(pull_request_event())
+
+    def test_stale_head_is_refused(self) -> None:
+        event = pull_request_event()
+        pull_request = event["pull_request"]
+        assert isinstance(pull_request, dict)
+        head = pull_request["head"]
+        assert isinstance(head, dict)
+        head["sha"] = "f" * 40
+        with self.assertRaisesRegex(attestation.AttestationError, "stale"):
+            attestation.validate_event(event)
+
+    def test_author_mismatch_is_refused(self) -> None:
+        event = pull_request_event()
+        pull_request = event["pull_request"]
+        assert isinstance(pull_request, dict)
+        user = pull_request["user"]
+        assert isinstance(user, dict)
+        user["login"] = "another-actor"
+        with self.assertRaisesRegex(attestation.AttestationError, "author login"):
+            attestation.validate_event(event)
+
+    def test_unchecked_declaration_is_refused(self) -> None:
+        body = valid_attestation_body().replace(
+            "- [x] I reviewed", "- [ ] I reviewed", 1
+        )
+        with self.assertRaisesRegex(attestation.AttestationError, "unchecked"):
+            attestation.validate_event(pull_request_event(body))
+
+    def test_duplicate_block_is_refused(self) -> None:
+        body = f"{valid_attestation_body()}\n{valid_attestation_body()}"
+        with self.assertRaisesRegex(attestation.AttestationError, "exactly one"):
+            attestation.validate_event(pull_request_event(body))
 
 
 class AppendOnlyTests(unittest.TestCase):
