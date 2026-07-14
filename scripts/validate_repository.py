@@ -18,12 +18,14 @@ REQUIRED_FILES = {
     "docs/architecture.md",
     "docs/verification-policy.md",
     "docs/append-only-review.md",
+    "docs/agent-identity-approval-roadmap.md",
     "schemas/registration-receipt.v1.schema.json",
     "schemas/attempt-disposition.v1.schema.json",
     "schemas/verification-result.v1.schema.json",
     ".github/CODEOWNERS",
     ".github/pull_request_template.md",
     ".github/workflows/validate.yml",
+    "scripts/validate_pr_attestation.py",
 }
 
 GENERIC_PUBLIC_BOUNDARY_MARKERS = (
@@ -82,6 +84,7 @@ def validate_authorization_state(value: Any) -> list[str]:
         "schema_version": "eval-registry.authorization-state.v1",
         "stage": "d2_scaffold",
         "repository_creation_approved": True,
+        "pull_request_review_mode": "solo_maintainer_attestation_v1",
         "signer_workflow_approved": False,
         "external_authorities_approved": False,
         "record_publication_approved": False,

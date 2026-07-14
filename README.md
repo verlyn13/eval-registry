@@ -21,6 +21,23 @@ separate authorization.
 
 The machine-readable state is [policy/authorization-state.json](policy/authorization-state.json).
 
+## Review posture
+
+The repository has one eligible maintainer. Pull requests remain mandatory, but GitHub cannot
+count an author's approval of their own pull request. The accepted temporary review mode is
+`solo_maintainer_attestation_v1`: the author reviews the final diff and records an attestation
+bound to the exact pull-request head SHA. CI refuses a missing, malformed, unchecked, or stale
+attestation. This is transparent self-review, **not independent approval**.
+
+Signed commits, required validation, resolved discussions, linear history, blocked deletion and
+force pushes, and a no-bypass default-branch ruleset remain mandatory. The initial D2 bootstrap
+predates this pull-request workflow and is recorded as a one-time historical exception.
+
+The temporary mode will be replaced after a separately accepted agent-identity submission and
+approval system can prove actor and credential separation. See
+[docs/agent-identity-approval-roadmap.md](docs/agent-identity-approval-roadmap.md). That future
+work does not open D3 or D4.
+
 ## Proof boundary
 
 Git is a reviewable discovery index, not a precedence authority. A future registration package is

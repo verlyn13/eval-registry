@@ -2,6 +2,7 @@ name: validate
 
 on:
   pull_request:
+    types: [opened, synchronize, reopened, edited, ready_for_review]
   push:
     branches: [main]
 
@@ -17,6 +18,10 @@ jobs:
         uses: actions/checkout@34e114876b0b11c390a56381ad16ebd13914f8d5
         with:
           fetch-depth: 0
+
+      - name: Validate exact-head solo-maintainer attestation
+        if: github.event_name == 'pull_request'
+        run: python3 scripts/validate_pr_attestation.py "$GITHUB_EVENT_PATH"
 
       - name: Validate repository structure
         run: python3 scripts/validate_repository.py

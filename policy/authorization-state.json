@@ -2,6 +2,7 @@
   "schema_version": "eval-registry.authorization-state.v1",
   "stage": "d2_scaffold",
   "repository_creation_approved": true,
+  "pull_request_review_mode": "solo_maintainer_attestation_v1",
   "signer_workflow_approved": false,
   "external_authorities_approved": false,
   "record_publication_approved": false,

@@ -29,9 +29,10 @@ are closed. A proposal, schema, test, or convenient credential never opens eithe
 7. **Version contracts.** A published schema or trust policy is immutable. Incompatible change
    means a new version and an explicit migration/compatibility statement.
 8. **Reviewed, signed history.** The default branch requires pull requests, signed commits, linear
-   history, and the repository validation check. The single-user D2 scaffold records self-review
-   but cannot enforce independent approval; independent review remains a blocker before any record
-   publication. Never bypass a failing check.
+   history, and the repository validation check. While there is one eligible maintainer,
+   `solo_maintainer_attestation_v1` requires a self-review bound to the exact pull-request head.
+   This accepted temporary control is not independent approval and must never be described as
+   such. Never bypass a failing check.
 9. **No ambient network behavior.** Repository validation is standard-library-only and does not
    contact signers, timestamp authorities, transparency logs, model services, or deployment
    providers.
