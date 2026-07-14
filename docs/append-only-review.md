@@ -63,10 +63,16 @@ and verification.
 
 The D2 status check executes workflow and validator code from the proposed revision. Pinning the
 required check to the GitHub Actions application does not prove that an unchanged validator emitted
-that check. This is acceptable only while record publication is mechanically forbidden. Before any
-record publication, append-only enforcement must execute trusted base-branch code (or an
-independently controlled verifier). The temporary self-review model does not satisfy or weaken that
-trusted-base requirement.
+that check. In D2, publication remains explicitly unauthorized and the current validator refuses
+record paths, but mutable pull-request code is not trusted mechanical enforcement. Before any record
+publication, append-only enforcement must execute trusted base-branch code (or an independently
+controlled verifier). The temporary self-review model does not satisfy or weaken that trusted-base
+requirement.
+
+The pull-request body remains editable and is process evidence, not a durable approval receipt.
+The check validates that the declaration matched the event head at check time; it cannot prove the
+declared review occurred or stop later body edits. The successor system must retain a separate,
+exact-revision approval receipt.
 
 ## Successor review system
 

@@ -19,7 +19,9 @@ or transparency-log endpoint has been selected or configured. No registration re
 disposition, incident record, or recovery record may be added. Those actions require later,
 separate authorization.
 
-The machine-readable state is [policy/authorization-state.json](policy/authorization-state.json).
+The machine-readable state is [policy/authorization-state.json](policy/authorization-state.json),
+currently `eval-registry.authorization-state.v2`. Its version history and compatibility rule are in
+[docs/authorization-state-versioning.md](docs/authorization-state-versioning.md).
 
 ## Review posture
 
@@ -66,8 +68,8 @@ sensitive system identities, or private workspace/repository names.
 
 ## Layout
 
-- `schemas/` — versioned signed-record and verifier-output schemas; published versions are
-  immutable.
+- `schemas/` — versioned signed-record, authorization-state, and verifier-output schemas;
+  published versions are immutable.
 - `policy/` — machine-readable authorization posture.
 - `docs/` — architecture, verification, and append-only review contracts.
 - `scripts/` — standard-library-only structural and diff validators.

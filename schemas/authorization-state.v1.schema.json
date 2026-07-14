@@ -1,0 +1,26 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://raw.githubusercontent.com/verlyn13/eval-registry/main/schemas/authorization-state.v1.schema.json",
+  "title": "Eval Registry authorization state v1",
+  "description": "Historical closed D2 bootstrap shape. A valid historical shape is not current authorization.",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "schema_version",
+    "stage",
+    "repository_creation_approved",
+    "signer_workflow_approved",
+    "external_authorities_approved",
+    "record_publication_approved",
+    "effective_date"
+  ],
+  "properties": {
+    "schema_version": {"const": "eval-registry.authorization-state.v1"},
+    "stage": {"type": "string", "minLength": 1},
+    "repository_creation_approved": {"type": "boolean"},
+    "signer_workflow_approved": {"type": "boolean"},
+    "external_authorities_approved": {"type": "boolean"},
+    "record_publication_approved": {"type": "boolean"},
+    "effective_date": {"type": "string", "format": "date"}
+  }
+}
