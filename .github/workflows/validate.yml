@@ -1,0 +1,32 @@
+name: validate
+
+on:
+  pull_request:
+  push:
+    branches: [main]
+
+permissions:
+  contents: read
+
+jobs:
+  registry-local-validation:
+    name: registry-local-validation
+    runs-on: ubuntu-latest
+    steps:
+      - name: Check out exact revision
+        uses: actions/checkout@34e114876b0b11c390a56381ad16ebd13914f8d5
+        with:
+          fetch-depth: 0
+
+      - name: Validate repository structure
+        run: python3 scripts/validate_repository.py
+
+      - name: Run policy tests
+        run: python3 -m unittest discover -s tests -v
+
+      - name: Enforce immutable history in pull requests
+        if: github.event_name == 'pull_request'
+        env:
+          BASE_SHA: ${{ github.event.pull_request.base.sha }}
+          HEAD_SHA: ${{ github.event.pull_request.head.sha }}
+        run: python3 scripts/check_append_only.py "$BASE_SHA" "$HEAD_SHA"

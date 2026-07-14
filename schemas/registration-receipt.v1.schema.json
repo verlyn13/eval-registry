@@ -1,0 +1,157 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://raw.githubusercontent.com/verlyn13/eval-registry/main/schemas/registration-receipt.v1.schema.json",
+  "title": "Eval Registry registration receipt v1",
+  "description": "The exact receipt.json bytes covered by the future registration signature. No caller time is authoritative or permitted.",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "schema_version",
+    "campaign_id",
+    "plan_commitment",
+    "task_set_commitment",
+    "methodology",
+    "campaign_family_commitment",
+    "attempt_ordinal",
+    "signer_policy",
+    "signature_bundle",
+    "verification_result"
+  ],
+  "properties": {
+    "schema_version": {
+      "const": "eval-registry.registration-receipt.v1"
+    },
+    "campaign_id": {
+      "type": "string",
+      "description": "Opaque lowercase UUID URN; it must not encode dates, model names, people, or system identities.",
+      "pattern": "^urn:uuid:[0-9a-f]{8}-[0-9a-f]{4}-4[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$"
+    },
+    "plan_commitment": {
+      "$ref": "#/$defs/plan_commitment"
+    },
+    "task_set_commitment": {
+      "$ref": "#/$defs/task_set_commitment"
+    },
+    "methodology": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["version", "method_sha256"],
+      "properties": {
+        "version": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 128
+        },
+        "method_sha256": {
+          "$ref": "#/$defs/sha256"
+        }
+      }
+    },
+    "campaign_family_commitment": {
+      "$ref": "#/$defs/campaign_family_commitment"
+    },
+    "attempt_ordinal": {
+      "type": "integer",
+      "minimum": 1,
+      "maximum": 9007199254740991
+    },
+    "signer_policy": {
+      "$ref": "#/$defs/signer_policy"
+    },
+    "signature_bundle": {
+      "$ref": "#/$defs/signature_bundle"
+    },
+    "verification_result": {
+      "$ref": "#/$defs/verification_result_reference"
+    }
+  },
+  "$defs": {
+    "sha256": {
+      "type": "string",
+      "pattern": "^sha256:[0-9a-f]{64}$"
+    },
+    "hmac_value": {
+      "type": "string",
+      "pattern": "^hmac-sha256:[0-9a-f]{64}$"
+    },
+    "plan_commitment": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["algorithm", "domain", "value"],
+      "properties": {
+        "algorithm": {"const": "hmac-sha256"},
+        "domain": {"const": "eval-registry.plan.v1\u0000"},
+        "value": {"$ref": "#/$defs/hmac_value"}
+      }
+    },
+    "task_set_commitment": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["algorithm", "domain", "value"],
+      "properties": {
+        "algorithm": {"const": "hmac-sha256"},
+        "domain": {"const": "eval-registry.task-set.v1\u0000"},
+        "value": {"$ref": "#/$defs/hmac_value"}
+      }
+    },
+    "campaign_family_commitment": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["algorithm", "domain", "value"],
+      "properties": {
+        "algorithm": {"const": "hmac-sha256"},
+        "domain": {"const": "eval-registry.campaign-family.v1\u0000"},
+        "value": {"$ref": "#/$defs/hmac_value"}
+      }
+    },
+    "signer_policy": {
+      "type": "object",
+      "description": "Values are selected only by a later authorization; this schema does not configure them.",
+      "additionalProperties": false,
+      "required": [
+        "certificate_identity",
+        "oidc_issuer",
+        "trust_policy_version",
+        "trust_policy_sha256"
+      ],
+      "properties": {
+        "certificate_identity": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 512
+        },
+        "oidc_issuer": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 512
+        },
+        "trust_policy_version": {
+          "type": "string",
+          "pattern": "^[a-z0-9][a-z0-9._-]{0,63}$"
+        },
+        "trust_policy_sha256": {
+          "$ref": "#/$defs/sha256"
+        }
+      }
+    },
+    "signature_bundle": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["kind", "path"],
+      "properties": {
+        "kind": {"const": "sigstore-bundle"},
+        "path": {"const": "signature.bundle.json"}
+      }
+    },
+    "verification_result_reference": {
+      "type": "object",
+      "description": "The referenced result is informational and never a verification shortcut.",
+      "additionalProperties": false,
+      "required": ["path", "authoritative"],
+      "properties": {
+        "path": {"const": "verification.json"},
+        "authoritative": {"const": false}
+      }
+    }
+  }
+}

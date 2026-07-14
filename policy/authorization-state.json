@@ -1,0 +1,9 @@
+{
+  "schema_version": "eval-registry.authorization-state.v1",
+  "stage": "d2_scaffold",
+  "repository_creation_approved": true,
+  "signer_workflow_approved": false,
+  "external_authorities_approved": false,
+  "record_publication_approved": false,
+  "effective_date": "2026-07-13"
+}

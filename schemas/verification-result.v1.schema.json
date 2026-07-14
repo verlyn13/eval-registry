@@ -1,0 +1,86 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://raw.githubusercontent.com/verlyn13/eval-registry/main/schemas/verification-result.v1.schema.json",
+  "title": "Eval Registry verification result v1",
+  "description": "Informational verifier output. The bundle and exact signed bytes remain the only verification inputs.",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "schema_version",
+    "authoritative",
+    "record_schema_version",
+    "signed_record_sha256",
+    "signature_bundle_sha256",
+    "trust_policy_sha256",
+    "verdict",
+    "verified_tsa_time",
+    "checks",
+    "reasons"
+  ],
+  "properties": {
+    "schema_version": {"const": "eval-registry.verification-result.v1"},
+    "authoritative": {"const": false},
+    "record_schema_version": {
+      "enum": [
+        "eval-registry.registration-receipt.v1",
+        "eval-registry.attempt-disposition.v1"
+      ]
+    },
+    "signed_record_sha256": {"$ref": "#/$defs/sha256"},
+    "signature_bundle_sha256": {"$ref": "#/$defs/sha256"},
+    "trust_policy_sha256": {"$ref": "#/$defs/sha256"},
+    "verdict": {"enum": ["verified", "refused"]},
+    "verified_tsa_time": {
+      "oneOf": [
+        {"type": "string", "format": "date-time"},
+        {"type": "null"}
+      ]
+    },
+    "checks": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "exact_schema",
+        "signature",
+        "certificate_identity",
+        "oidc_issuer",
+        "certificate_chain",
+        "tsa_signature",
+        "tsa_imprint_is_signature_bytes",
+        "certificate_valid_at_tsa_time",
+        "transparency_inclusion",
+        "transparency_checkpoint"
+      ],
+      "properties": {
+        "exact_schema": {"$ref": "#/$defs/check"},
+        "signature": {"$ref": "#/$defs/check"},
+        "certificate_identity": {"$ref": "#/$defs/check"},
+        "oidc_issuer": {"$ref": "#/$defs/check"},
+        "certificate_chain": {"$ref": "#/$defs/check"},
+        "tsa_signature": {"$ref": "#/$defs/check"},
+        "tsa_imprint_is_signature_bytes": {"$ref": "#/$defs/check"},
+        "certificate_valid_at_tsa_time": {"$ref": "#/$defs/check"},
+        "transparency_inclusion": {"$ref": "#/$defs/check"},
+        "transparency_checkpoint": {"$ref": "#/$defs/check"}
+      }
+    },
+    "reasons": {
+      "type": "array",
+      "items": {
+        "type": "string",
+        "minLength": 1,
+        "maxLength": 256
+      },
+      "uniqueItems": true
+    }
+  },
+  "$defs": {
+    "sha256": {
+      "type": "string",
+      "pattern": "^sha256:[0-9a-f]{64}$"
+    },
+    "check": {
+      "enum": ["passed", "failed", "not_checked"]
+    }
+  }
+}

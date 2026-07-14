@@ -1,0 +1,108 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://raw.githubusercontent.com/verlyn13/eval-registry/main/schemas/attempt-disposition.v1.schema.json",
+  "title": "Eval Registry attempt disposition v1",
+  "description": "The exact disposition.json bytes covered by a future disposition signature. Publication is not authorized in D2 state.",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "schema_version",
+    "campaign_family_commitment",
+    "attempt_ordinal",
+    "terminal_disposition",
+    "signer_policy",
+    "signature_bundle",
+    "verification_result"
+  ],
+  "properties": {
+    "schema_version": {
+      "const": "eval-registry.attempt-disposition.v1"
+    },
+    "campaign_family_commitment": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["algorithm", "domain", "value"],
+      "properties": {
+        "algorithm": {"const": "hmac-sha256"},
+        "domain": {"const": "eval-registry.campaign-family.v1\u0000"},
+        "value": {
+          "type": "string",
+          "pattern": "^hmac-sha256:[0-9a-f]{64}$"
+        }
+      }
+    },
+    "attempt_ordinal": {
+      "type": "integer",
+      "minimum": 1,
+      "maximum": 9007199254740991
+    },
+    "terminal_disposition": {
+      "enum": ["reported", "abandoned", "aborted"]
+    },
+    "public_reason": {
+      "type": "string",
+      "minLength": 1,
+      "maxLength": 512
+    },
+    "signer_policy": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "certificate_identity",
+        "oidc_issuer",
+        "trust_policy_version",
+        "trust_policy_sha256"
+      ],
+      "properties": {
+        "certificate_identity": {"type": "string", "minLength": 1, "maxLength": 512},
+        "oidc_issuer": {"type": "string", "minLength": 1, "maxLength": 512},
+        "trust_policy_version": {
+          "type": "string",
+          "pattern": "^[a-z0-9][a-z0-9._-]{0,63}$"
+        },
+        "trust_policy_sha256": {"$ref": "#/$defs/sha256"}
+      }
+    },
+    "signature_bundle": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["kind", "path"],
+      "properties": {
+        "kind": {"const": "sigstore-bundle"},
+        "path": {"const": "signature.bundle.json"}
+      }
+    },
+    "verification_result": {
+      "type": "object",
+      "description": "The referenced result is informational and never a verification shortcut.",
+      "additionalProperties": false,
+      "required": ["path", "authoritative"],
+      "properties": {
+        "path": {"const": "verification.json"},
+        "authoritative": {"const": false}
+      }
+    }
+  },
+  "allOf": [
+    {
+      "if": {
+        "properties": {"terminal_disposition": {"enum": ["abandoned", "aborted"]}},
+        "required": ["terminal_disposition"]
+      },
+      "then": {"required": ["public_reason"]}
+    },
+    {
+      "if": {
+        "properties": {"terminal_disposition": {"const": "reported"}},
+        "required": ["terminal_disposition"]
+      },
+      "then": {"not": {"required": ["public_reason"]}}
+    }
+  ],
+  "$defs": {
+    "sha256": {
+      "type": "string",
+      "pattern": "^sha256:[0-9a-f]{64}$"
+    }
+  }
+}
