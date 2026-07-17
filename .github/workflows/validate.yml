@@ -29,6 +29,12 @@ jobs:
       - name: Run policy tests
         run: python3 -m unittest discover -s tests -v
 
+      - name: Ruff lint and format check
+        run: |
+          python3 -m pip install ruff
+          ruff check .
+          ruff format --check .
+
       - name: Enforce immutable history in pull requests
         if: github.event_name == 'pull_request'
         env:
