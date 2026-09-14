@@ -1,121 +1,41 @@
----
-title: AGENTS — Operating Charter for eval-registry
-category: governance
-component: eval-registry
-status: active
-version: 0.1.0
-last_updated: 2026-07-17
-tags: [agents, charter, registry, append-only, commitment-index, public]
-priority: high
----
+# Public evaluation registry agent contract
 
-# AGENTS.md — Eval Registry Operating Charter
+## Purpose and public boundary
 
-One-line: **a public, append-only commitment index and D2 scaffold — it registers and
-verifies records; it must NOT become an evaluation runner, a router, a model store, a
-deployment surface, or a live signer/records store before D3/D4 are signed open.**
+This public repository owns the append-only commitment index, registration schemas, verification policy, authorization-state contract, and public discoverability. It does not own evaluation execution, model routing, model bytes, deployment state, evidence analysis, or operational traces.
 
-This repository owns registration-record custody, schema and verification policy, and
-public discoverability. It does not own evaluation execution, model routing, model bytes,
-deployment reality, evidence analysis, or operational traces.
+The machine-readable authorization state is the gate. A proposal, credential, schema, test, or convenient implementation does not open a signer, external-authority, or record-publication lane.
 
-## Boundaries — this repo owns / does not own
+## Start every task
 
-- **Owns:** the registration-record custody contract, the schema and verification policy,
-  the authorization-state contract, and public discoverability of the commitment index.
-- **Does NOT own:** evaluation execution, model routing, model bytes, deployment reality,
-  evidence analysis, or operational traces. Those belong to sibling repos and must never
-  be reimplemented or mirrored here.
+1. Use the `project-status` skill.
+2. Read `policy/authorization-state.json`, `README.md`, `docs/architecture.md`, `docs/verification-policy.md`, and `docs/append-only-review.md`.
+3. Inspect the current branch, HEAD, working tree, and relevant diff. Preserve unrelated work.
+4. Keep repository bytes, local Git, authorization state, remote review state, and any future external authority as separate evidence lanes.
 
-## Current gate
+## Durable rules
 
-Only D2 scaffold work is authorized. D3 signer/external-authority setup and D4 record
-publication are closed. A proposal, schema, test, or convenient credential never opens
-either gate.
+- Signatures and commitments bind exact bytes. Never substitute canonical reconstruction or semantic equivalence in a verification path.
+- Fail closed when trust policy, authorization, bundle material, timestamp proof, or log inclusion is missing. Do not substitute Git time, caller time, or log integration time.
+- While the authorization state keeps record publication closed, do not commit receipts, dispositions, incidents, recovery artifacts, examples, fixtures, synthetic records, or trust material.
+- Do not configure a signer, OIDC write permission, key, issuer identity, trust root, timestamp endpoint, or transparency-log endpoint unless the corresponding authorization field is open through its governed process.
+- After activation, records are append-only. Corrections are new signed records; never modify, rename, or delete an existing record.
+- Published schemas and authorization/trust contracts are immutable. An incompatible change creates a new version plus an explicit migration and compatibility statement.
+- Commit public-safe content only. Never include private workspace names, plans, schedules, outcomes, model responses, credentials, nonces, or sensitive identities.
+- Preserve reviewed, signed, linear history and exact-head review controls. Never describe self-review as independent approval.
 
-## Hard rules
+## Engineering policy
 
-1. **Exact bytes are the artifact.** Signatures and commitments bind exact bytes. No canonical JSON
-   reconstruction, reformatting, or semantic-equivalence shortcut may appear in a verification
-   path.
-2. **Fail closed.** Missing trust-policy values, bundle material, timestamp proof, log inclusion,
-   or authorization is a refusal. There is no fallback to Git time, caller time, or log integration
-   time.
-3. **D2 is record-frozen.** While `policy/authorization-state.json` says `d2_scaffold`, no receipt,
-   disposition, incident, recovery, example, fixture, or synthetic record may be committed.
-4. **No signer or authority activation.** Do not add signing workflows, OIDC permissions, keys,
-   issuer identities, trust roots, timestamp endpoints, or transparency-log endpoints without an
-   explicit later authorization.
-5. **Public-safe content only.** Never commit private plans, nonces, schedules, outcomes, model
-   responses, decisions, credentials, sensitive identities, or private workspace/repository names.
-6. **Append only after activation.** Existing files under any future `records/` path may never be
-   modified, renamed, or deleted. Corrective information is a new signed record.
-7. **Version contracts.** A published schema, authorization-state contract, or trust policy is
-   immutable. Incompatible change means a new version and an explicit migration/compatibility
-   statement.
-8. **Reviewed, signed history.** The default branch requires pull requests, signed commits, linear
-   history, and the repository validation check. While there is one eligible maintainer,
-   `solo_maintainer_attestation_v1` requires a self-review bound to the exact pull-request head.
-   This accepted temporary control is not independent approval and must never be described as
-   such. Never bypass a failing check.
-9. **No ambient network behavior.** Repository validation is standard-library-only and does not
-   contact signers, timestamp authorities, transparency logs, model services, or deployment
-   providers.
+Prefer forward migrations through new contract versions and explicit compatibility rules. Do not weaken a validator or roll tooling back to accept an obsolete format. Project agents inherit the user-selected model.
 
-## Gate parity — local == CI
+## Validation and handoff
 
-Run the exact merge gate before claiming done (mirrors `.github/workflows/`):
+Run:
 
 ```bash
-python3 scripts/validate_repository.py && python3 -m unittest discover -s tests -v
+python3 scripts/check_agent_contract.py
+python3 scripts/validate_repository.py
+python3 -m unittest discover -s tests -v
 ```
 
-Validation is standard-library-only and must stay fail-closed; never `--no-verify` past a
-failing check, and never soften a refusal into a pass to make the gate green.
-
-## Frozen / do-not-edit-in-place
-
-These are byte-exact or contract-pinned; an incidental reformat or value change trips
-validation on purpose:
-
-- `policy/authorization-state.json` — exact-equality checked; the current authorization
-  state (`d2_scaffold`) is the gate that keeps records frozen. Change it only under an
-  explicit, signed D3/D4 authorization, never as a convenience.
-- Published schemas and the authorization-state / trust-policy contracts — immutable once
-  published. A new version plus a migration/compatibility statement is the only legitimate
-  change (Hard rule 7).
-
-## Safe vs held commands
-
-| Safe (returns real output today) | Held / fail-closed (returns refusal or needs authorization) |
-|---|---|
-| `python3 scripts/validate_repository.py` | committing any receipt/disposition/incident/record — held while state is `d2_scaffold` |
-| `python3 -m unittest discover -s tests -v` | adding any signer, OIDC, key, trust root, timestamp, or transparency-log endpoint — held pending D3 |
-| reading/editing schemas as new versions | publishing a record — held pending a signed D4 publication gate |
-
-A refusal from a held path is the system working as designed — read the hold/gate
-rationale before treating it as a bug.
-
-## Truth lanes (keep separate — do not conflate)
-
-Authoritative state lives in `policy/authorization-state.json` (machine gate), with
-`README.md` Status and the D2 scaffold docs as the human-readable lane. Repo docs, git
-state, and the authorization-state contract are SEPARATE lanes; do not infer one from
-another, and never over-claim a held/planned D3/D4 capability as implemented.
-
-## STOP and escalate if
-
-- work requires any secret, nonce, signer credential, or external trust decision;
-- a requested change would publish any record before its publication gate is signed;
-- a change would expose private or sensitive content;
-- an existing versioned schema or future record would need mutation or deletion; or
-- branch protection, signed-history enforcement, or required validation cannot remain fail-closed.
-
-A blocked task reported honestly is success; a guessed-past gate is not.
-
-## Cross-repo
-
-This repository is a public D2 scaffold and is intentionally self-contained: it names no
-private repositories and holds no pointers into private workspaces. It shares the public
-evidence contract and identity-domain conventions of the public methodology core; downstream
-parity is governed there, never by editing frozen constants in place here.
+Pull requests also run the exact-head attestation and append-only history checks in `.github/workflows/validate.yml`. Report authorization state separately from implementation readiness and external authority state.

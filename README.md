@@ -6,13 +6,15 @@ deployment lifecycle, evidence analysis, and trace storage.
 
 ## Current authorization state
 
-As of 2026-07-13, only the D2 scaffold is authorized and present:
+As of 2026-09-14, only the D2 scaffold is authorized and present:
 
 - the public repository and its charter;
 - versioned record schemas;
 - a fail-closed verification policy;
 - an append-only review policy and validation-only CI; and
 - default-branch protection.
+
+The 2026-09-14 maintenance pass revalidated the unchanged authorization state, repository structure, and all 17 policy tests. It added no record, signer, trust, or publication authority.
 
 The repository is **not operational**. No signer identity, issuer, trust roots, timestamp authority,
 or transparency-log endpoint has been selected or configured. No registration receipt,

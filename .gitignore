@@ -3,3 +3,6 @@ __pycache__/
 .ruff_cache/
 .pytest_cache/
 .DS_Store
+
+# Personal Claude Code overrides
+.claude/settings.local.json
