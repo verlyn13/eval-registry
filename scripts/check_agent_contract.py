@@ -36,6 +36,11 @@ if agents.is_file():
         "AGENTS.md exceeds the 32 KiB Codex discovery limit",
     )
 
+require(
+    (ROOT / ".github/dependabot.yml").is_file(),
+    "Dependabot version-update configuration is missing",
+)
+
 claude = ROOT / "CLAUDE.md"
 require(claude.is_file(), "CLAUDE.md is missing")
 if claude.is_file():
