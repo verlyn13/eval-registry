@@ -19,6 +19,9 @@ jobs:
         with:
           fetch-depth: 0
 
+      - name: Validate agent contract
+        run: python3 scripts/check_agent_contract.py
+
       - name: Validate exact-head solo-maintainer attestation
         if: github.event_name == 'pull_request'
         run: python3 scripts/validate_pr_attestation.py "$GITHUB_EVENT_PATH"
@@ -31,7 +34,7 @@ jobs:
 
       - name: Ruff lint and format check
         run: |
-          python3 -m pip install ruff
+          python3 -m pip install ruff==0.16.7
           ruff check .
           ruff format --check .
 
